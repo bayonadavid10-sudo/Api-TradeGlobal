@@ -175,7 +175,7 @@
       <div class="section-tag">Lo que hacemos</div>
       <h2 class="section-title">Nuestros <em>servicios</em></h2>
     </div>
-    <p class="section-sub">Desde la gestión aduanera hasta la entrega final, cubrimos cada paso de tu operación comercial internacional.</p>
+    <p class="section-sub">Desde la gestión aduanera hasta la entrega final, cubrimos cada paso de tu operation comercial internacional.</p>
   </div>
   <div class="servicios-grid reveal">
     <div class="servicio-card"><div class="servicio-num">01</div><div class="servicio-icon">🚢</div><h3>Importación</h3><p>Traemos tu mercancía desde cualquier parte del mundo. Gestionamos aranceles, permisos y trámites aduaneros con total transparencia.</p></div>
@@ -193,7 +193,7 @@
     <h2 class="section-title">Proceso <em>simple</em>,<br/>resultados sólidos</h2>
   </div>
   <div class="proceso-grid reveal">
-    <div class="paso"><div class="paso-num">01</div><h4>Consulta inicial</h4><p>Analizamos tu operation, tipo de mercancía y destinos para diseñar la solución logística óptima.</p></div>
+    <div class="paso"><div class="paso-num">01</div><h4>Consulta inicial</h4><p>Analizamos tu operación, tipo de mercancía y destinos para diseñar la solución logística óptima.</p></div>
     <div class="paso"><div class="paso-num">02</div><h4>Cotización detallada</h4><p>Recibes una propuesta transparente con todos los costos: fletes, aranceles, seguros y honorarios.</p></div>
     <div class="paso"><div class="paso-num">03</div><h4>Gestión documental</h4><p>Nuestro equipo prepara y verifica toda la documentación requerida por aduana y organismos reguladores.</p></div>
     <div class="paso"><div class="paso-num">04</div><h4>Transporte y entrega</h4><p>Coordinamos el transporte internacional y la entrega en destino con seguimiento constante.</p></div>
@@ -314,7 +314,7 @@
   const API_IMAGENES = API_BASE + '/api/imagenes/subir';
   const API_COTIZACIONES = API_BASE + '/api/cotizaciones';
 
-  // Variables globales para rastrear el producto seleccionado
+  // Variables globales añadidas para guardar el estado del producto seleccionado
   let productoSeleccionadoNombre = null;
   let productoSeleccionadoId = null;
 
@@ -324,7 +324,7 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // Función para capturar los datos y hacer scroll al formulario
+  // Función añadida para capturar el producto y hacer scroll dinámico al formulario
   function seleccionarParaCotizar(nombre, id) {
     productoSeleccionadoNombre = nombre;
     productoSeleccionadoId = id;
@@ -339,7 +339,7 @@
     ctaSection.scrollIntoView({ behavior: 'smooth' });
   }
 
-  // CTA optimizado para enviar datos al backend
+  // CTA actualizado con payload dinámico completo para la API
   async function handleCTA() {
     const emailInput = document.getElementById('emailInput');
     const btn = document.getElementById('ctaBtn');
@@ -348,6 +348,7 @@
     btn.textContent = 'Enviando...';
     btn.disabled = true;
 
+    // Aquí se arma el payload con las propiedades que espera el backend
     const payload = {
       email: email,
       producto: productoSeleccionadoNombre ? productoSeleccionadoNombre : "Cotización General",
@@ -365,7 +366,7 @@
         btn.style.background = '#22c55e';
         emailInput.value = '';
         
-        // Resetear variables
+        // Limpiamos la selección
         productoSeleccionadoNombre = null;
         productoSeleccionadoId = null;
         
@@ -373,7 +374,8 @@
           btn.textContent = 'Quiero cotizar'; 
           btn.style.background = ''; 
           btn.disabled = false;
-          // Volver a textos originales
+          
+          // Reestablecer textos predeterminados
           const ctaSection = document.getElementById('contacto');
           ctaSection.querySelector('h2').innerHTML = '¿Listo para <em>exportar</em><br/>al mundo?';
           ctaSection.querySelector('p').textContent = 'Déjanos tu correo y un asesor te contacta en menos de 24 horas con una cotización personalizada sin costo.';
@@ -427,7 +429,7 @@
   const statsRow = document.querySelector('.stats-row');
   if (statsRow) heroObserver.observe(statsRow);
 
-  // Cargar productos públicos incluyendo botón de acción
+  // Cargar productos públicos
   async function cargarProductos() {
     try {
       const res = await fetch(API_PRODUCTOS);
@@ -435,13 +437,14 @@
       const grid = document.getElementById('productosGrid');
       const filtrosDiv = document.getElementById('filtros');
       if (!data.length) { grid.innerHTML = '<p style="color:#8a93a8;">No hay productos disponibles.</p>'; return; }
-      const categories = ['Todos', ...new Set(data.map(p => p.categoria))];
-      filtrosDiv.innerHTML = categories.map(c => `<button onclick="filtrarProductos('${c}')" style="padding:8px 20px; border-radius:20px; border:1px solid #c9a84c; background:transparent; color:#c9a84c; cursor:pointer; font-size:13px;">${c}</button>`).join('');
+      const categorias = ['Todos', ...new Set(data.map(p => p.categoria))];
+      filtrosDiv.innerHTML = categorias.map(c => `<button onclick="filtrarProductos('${c}')" style="padding:8px 20px; border-radius:20px; border:1px solid #c9a84c; background:transparent; color:#c9a84c; cursor:pointer; font-size:13px;">${c}</button>`).join('');
       window._productos = data;
       mostrarProductos(data);
     } catch(e) { console.log('Error cargando productos', e); }
   }
 
+  // Se modificó por completo para incluir el botón de acción "Cotizar Producto"
   function mostrarProductos(productos) {
     const grid = document.getElementById('productosGrid');
     grid.innerHTML = productos.map(p => `
@@ -531,7 +534,7 @@
       </table>`;
   }
 
-  // Admin — ver tabla de cotizaciones con columna de producto
+  // Admin — ver tabla de cotizaciones con columna de producto añadida
   async function verCotizaciones() {
     const res = await fetch(API_COTIZACIONES);
     const data = await res.json();
