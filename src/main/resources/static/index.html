@@ -524,7 +524,10 @@
               <td style="padding:12px;">${p.nombre}</td>
               <td style="padding:12px; color:#8a93a8;">${p.categoria}</td>
               <td style="padding:12px; color:#c9a84c;">${p.precio.toLocaleString('es-CO')} COP</td>
-              <td style="padding:12px;">
+              <td style="padding:12px; display:flex; gap:8px;">
+                <button onclick="abrirEditar('${p.id}','${p.nombre}','${p.descripcion}','${p.categoria}',${p.precio})" style="padding:6px 14px; background:#c9a84c; color:#0b1120; border:none; border-radius:4px; cursor:pointer; font-weight:600;">
+                  ✏️ Editar
+                </button>
                 <button onclick="eliminarProducto('${p.id}')" style="padding:6px 14px; background:#ef4444; color:#fff; border:none; border-radius:4px; cursor:pointer;">
                   Eliminar
                 </button>
@@ -578,6 +581,81 @@
   }
 
   cargarProductos();
+
+  // ── EDICIÓN DE PRODUCTOS ──────────────────────────────────────────
+  function abrirEditar(id, nombre, descripcion, categoria, precio) {
+    document.getElementById('editId').value = id;
+    document.getElementById('editNombre').value = nombre;
+    document.getElementById('editDescripcion').value = descripcion;
+    document.getElementById('editCategoria').value = categoria;
+    document.getElementById('editPrecio').value = precio;
+    document.getElementById('editImagen').value = '';
+    document.getElementById('modalEditar').style.display = 'flex';
+  }
+
+  function cerrarEditar() {
+    document.getElementById('modalEditar').style.display = 'none';
+  }
+
+  async function guardarEdicion() {
+    const id = document.getElementById('editId').value;
+    const nombre = document.getElementById('editNombre').value.trim();
+    const descripcion = document.getElementById('editDescripcion').value.trim();
+    const categoria = document.getElementById('editCategoria').value.trim();
+    const precio = parseFloat(document.getElementById('editPrecio').value);
+    const archivoInput = document.getElementById('editImagen');
+
+    let imagenUrl = '';
+    if (archivoInput.files.length > 0) {
+      const formData = new FormData();
+      formData.append('archivo', archivoInput.files[0]);
+      try {
+        const resImg = await fetch(API_IMAGENES, { method: 'POST', body: formData });
+        const dataImg = await resImg.json();
+        imagenUrl = API_BASE + dataImg.url;
+      } catch(e) { console.log('Error subiendo imagen', e); }
+    }
+
+    const body = { nombre, descripcion, categoria, precio };
+    if (imagenUrl) body.imagen = imagenUrl;
+
+    await fetch(`${API_PRODUCTOS}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+
+    cerrarEditar();
+    alert('✅ Producto actualizado correctamente');
+    cargarProductosAdmin();
+    cargarProductos();
+  }
 </script>
+
+<!-- Modal Editar Producto -->
+<div id="modalEditar" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:9999; align-items:center; justify-content:center;">
+  <div style="background:#111827; border:1px solid #c9a84c; border-radius:8px; padding:40px; width:90%; max-width:500px;">
+    <h3 style="font-family:'Playfair Display',serif; color:#fff; margin-bottom:24px;">✏️ Editar Producto</h3>
+    <input type="hidden" id="editId"/>
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <input id="editNombre" placeholder="Nombre" style="padding:12px; border-radius:4px; border:1px solid #c9a84c; background:#0b1120; color:#fff; font-size:14px;"/>
+      <input id="editDescripcion" placeholder="Descripción" style="padding:12px; border-radius:4px; border:1px solid #c9a84c; background:#0b1120; color:#fff; font-size:14px;"/>
+      <input id="editCategoria" placeholder="Categoría" style="padding:12px; border-radius:4px; border:1px solid #c9a84c; background:#0b1120; color:#fff; font-size:14px;"/>
+      <input id="editPrecio" placeholder="Precio (COP)" type="number" style="padding:12px; border-radius:4px; border:1px solid #c9a84c; background:#0b1120; color:#fff; font-size:14px;"/>
+      <div>
+        <label style="color:#8a93a8; font-size:13px; display:block; margin-bottom:6px;">Nueva imagen (opcional)</label>
+        <input id="editImagen" type="file" accept="image/*" style="padding:12px; border-radius:4px; border:1px solid #c9a84c; background:#0b1120; color:#fff; width:100%; font-size:14px;"/>
+      </div>
+    </div>
+    <div style="display:flex; gap:12px; margin-top:24px;">
+      <button onclick="guardarEdicion()" style="flex:1; padding:14px; background:#c9a84c; color:#0b1120; border:none; border-radius:4px; font-weight:700; cursor:pointer; font-size:15px;">
+        💾 Guardar cambios
+      </button>
+      <button onclick="cerrarEditar()" style="flex:1; padding:14px; background:transparent; color:#c9a84c; border:1px solid #c9a84c; border-radius:4px; cursor:pointer; font-size:15px;">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
